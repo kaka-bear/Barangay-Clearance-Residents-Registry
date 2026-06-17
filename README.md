@@ -186,6 +186,76 @@ End Using
 
 ---
 
+## 🔄 CRUD Operations
+
+The system implements strict Create, Read, Update, and Delete patterns across all tables with full parameter safety:
+
+### ➕ Create (Insert)
+Inserts new records using parameterized command objects. Example from resident registry:
+```vb
+Dim sql As String = "INSERT INTO Residents (FullName, Sex, BirthDate, CivilStatus, ContactNumber, Address, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?, Now(), Now())"
+Dim params As New List(Of OleDbParameter) From {
+    New OleDbParameter("@name", OleDbType.VarWChar) With {.Value = name},
+    New OleDbParameter("@sex", OleDbType.VarWChar) With {.Value = sex},
+    New OleDbParameter("@birth", OleDbType.Date) With {.Value = birthDate},
+    New OleDbParameter("@civil", OleDbType.VarWChar) With {.Value = civilStatus},
+    New OleDbParameter("@phone", OleDbType.VarWChar) With {.Value = If(String.IsNullOrEmpty(phone), DBNull.Value, phone)},
+    New OleDbParameter("@addr", OleDbType.VarWChar) With {.Value = address}
+}
+DbHelper.Exec(sql, params)
+```
+
+### 🔍 Read (Select & Filter)
+Populates grids with dynamic filters, date ranges, and user-selectable sorting (SQL Injection Safe):
+```vb
+Dim where As New List(Of String)
+Dim params As New List(Of OleDbParameter)
+
+If Not String.IsNullOrWhiteSpace(txtName.Text) Then
+    where.Add("FullName LIKE ?")
+    params.Add(New OleDbParameter("@name", "%" & txtName.Text.Trim() & "%"))
+End If
+
+Dim sql = "SELECT * FROM Residents"
+If where.Count > 0 Then
+    sql &= " WHERE " & String.Join(" AND ", where)
+End If
+sql &= " ORDER BY " & cboSort.SelectedItem.ToString()
+Dim dt As DataTable = DbHelper.GetTable(sql, params)
+```
+
+### 📝 Update
+Saves modifications to the database after form-level validation rules pass:
+```vb
+Dim sql As String = "UPDATE Residents SET FullName = ?, Sex = ?, BirthDate = ?, CivilStatus = ?, ContactNumber = ?, Address = ?, UpdatedAt = Now() WHERE ResidentID = ?"
+Dim params As New List(Of OleDbParameter) From {
+    New OleDbParameter("@name", name),
+    New OleDbParameter("@sex", sex),
+    New OleDbParameter("@birth", birthDate),
+    New OleDbParameter("@civil", civilStatus),
+    New OleDbParameter("@phone", If(String.IsNullOrEmpty(phone), DBNull.Value, phone)),
+    New OleDbParameter("@addr", address),
+    New OleDbParameter("@id", residentId)
+}
+DbHelper.Exec(sql, params)
+```
+
+### ❌ Delete & Referential Integrity
+Before executing any delete statement, the system queries referencing tables to enforce database safety rules:
+```vb
+' Check references first
+Dim count As Integer = Convert.ToInt32(DbHelper.ExecScalar("SELECT COUNT(*) FROM Clearances WHERE ResidentID = ?", New List(Of OleDbParameter) From {New OleDbParameter("@id", id)}))
+If count > 0 Then
+    MessageBox.Show("Cannot delete resident with active clearance records.", "Referential Integrity", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+    Return
+End If
+
+' Safe to delete if no referencing records
+DbHelper.Exec("DELETE FROM Residents WHERE ResidentID = ?", New List(Of OleDbParameter) From {New OleDbParameter("@id", id)})
+```
+
+---
+
 ## 🚀 Getting Started & Setup
 
 ### 📋 Prerequisites
