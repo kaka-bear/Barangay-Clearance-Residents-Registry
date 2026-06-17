@@ -9,7 +9,23 @@
 
 ---
 
+## 🎥 Project Demonstration Video
+
+> [!TIP]
+> Watch the comprehensive 7-minute walk-through of the application demonstrating CRUD operations, database transaction failure simulations, advanced search, and dynamic layout-clipped landscape reports.
+>
+> ### 🔗 [Click Here to View the Video on Google Drive](https://drive.google.com/file/d/1ydH7buSUyraQNK2HLuvv3GlvKpqD6n6r/view?usp=sharing)
+
+<p align="center">
+  <a href="https://drive.google.com/file/d/1ydH7buSUyraQNK2HLuvv3GlvKpqD6n6r/view?usp=sharing" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20Demo%20Video-Google%20Drive-orange?style=for-the-badge&logo=googledrive&logoColor=white" alt="Watch Demo Video">
+  </a>
+</p>
+
+---
+
 ## 📖 Table of Contents
+* [🎥 Project Demonstration Video](#-project-demonstration-video)
 * [👩‍💻 Developers](#-developers)
 * [📝 Project Goal & Description](#-project-goal--description)
 * [🎯 Grading Anchor Compliance Checklist](#-grading-anchor-compliance-checklist)
